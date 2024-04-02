@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html> 
+
+<head>
+    <title>Tox UI</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <!-- Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" type="text/css" href="styles/viewer.css">
+    <link rel="stylesheet" type="text/css" href="styles/panel.css">
+</head>
+
+
+<body>
+    <!-- Slide viewer -->
+    <div id="div-viewer">
+        <div id="div-loading-overlay">
+            <div id="div-loading-animation">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Control panel -->
+    <div id="control-panel" class="show">
+        <select id="slide-select"></select>
+    </div>
+    <button id="panel-toggle"><<</button>
+
+
+    <script src="scripts/openseadragon-bin-4.0.0/openseadragon.min.js"></script>
+    <script type="module" src="scripts/main.js"></script> 
+</body>
+
+</html>
