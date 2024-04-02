@@ -54,7 +54,7 @@ export class Viewer {
         this.viewer.addTiledImage({
             tileSource: {
                 type: 'image',
-                url: this.root_dir + this.slide_id + '/heatmaps/' + this.metadata.find(slide => slide.id === this.slide_id).heatmaps[lesion],
+                url: this.root_dir + this.slide_id + '/heatmaps_dense/' + this.metadata.find(slide => slide.id === this.slide_id).heatmaps[lesion],
                 buildPyramid: false,
             },
             opacity: 0.5, // Adjust as necessary
@@ -152,17 +152,16 @@ export class ControlPanel {
 
         // Context text: goal
         var goalText = document.createElement('div');
-        goalText.innerHTML = '<strong>Jump inside our morphomolecular discovery pipeline!</strong>';
+        goalText.innerHTML = '<strong>Visualize TRACE predictions!</strong>';
         goalText.style.display = 'flex';
         goalText.style.justifyContent = 'center'; // Center horizontally
         this.panel.appendChild(goalText);
 
         // Context text: description
         let descriptionText = document.createElement('div');
-        descriptionText.innerHTML = '<em>Interact with both panels to visualize how pseudo-spatially-resolved expression align with the presence of morphological lesions.</em>';
+        descriptionText.innerHTML = '<em>Interact the panel to visualize lesions.</em>';
         this.panel.appendChild(descriptionText);
     
-
         // Create a table to display the lesion and its heatmap
         var lesion_table = document.createElement('table');
         var labelRow = document.createElement('tr');
@@ -171,6 +170,10 @@ export class ControlPanel {
         nameHeader.textContent = 'Lesion';
         labelRow.appendChild(nameHeader);
 
+        var confidenceHeader = document.createElement('th');
+        confidenceHeader.textContent = 'Percentage';
+        labelRow.appendChild(confidenceHeader);
+
         var toggleHeader = document.createElement('th');
         toggleHeader.textContent = 'Heatmap';
         labelRow.appendChild(toggleHeader);
@@ -178,118 +181,50 @@ export class ControlPanel {
         lesion_table.appendChild(labelRow);
 
         // Show Lesion heatmaps
-        Object.entries(slide_data.measured).forEach(([lesion, _]) => {
+        Object.entries(slide_data.probabilities).forEach(([lesion, probability]) => {
 
-            if (lesion == 'Necrosis' || lesion == 'Cellular infiltration' || lesion == 'Fatty change' || lesion == 'Increased mitosis' || lesion == 'Hypertrophy' || lesion == 'ile duct proliferation') {
+            var row = document.createElement('tr');
 
-                var row = document.createElement('tr');
+            var nameCell = document.createElement('td');
+            nameCell.textContent = lesion;
 
-                var nameCell = document.createElement('td');
-                nameCell.textContent = lesion;
+            var confidenceCell = document.createElement('td');
+            confidenceCell.textContent = probability;
 
-                var toggleCell = document.createElement('td');
+            var toggleCell = document.createElement('td');
 
-                var toggle = document.createElement('label');
-                toggle.className = 'switch';
+            var toggle = document.createElement('label');
+            toggle.className = 'switch';
 
-                var input = document.createElement('input');
-                input.type = 'checkbox';
-                this.heatmap_toggles[lesion] = input;
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            this.heatmap_toggles[lesion] = input;
 
-                var span = document.createElement('span');
-                span.className = 'slider round';
+            var span = document.createElement('span');
+            span.className = 'slider round';
 
-                toggle.appendChild(input);
-                toggle.appendChild(span);
-                toggleCell.appendChild(toggle);
-                row.appendChild(nameCell);
-                row.appendChild(toggleCell);
-                lesion_table.appendChild(row);
-            }
+            toggle.appendChild(input);
+            toggle.appendChild(span);
+            toggleCell.appendChild(toggle);
+            row.appendChild(nameCell);
+            row.appendChild(confidenceCell);
+            row.appendChild(toggleCell);
+            lesion_table.appendChild(row);
+
         });
         this.panel.appendChild(lesion_table);
 
         // Context text: measured expression
         var lesionText = document.createElement('div');
-        lesionText.innerHTML = '<strong>Lesion:</strong> Prediction of the lesion classifier (patch-level)';
+        lesionText.innerHTML = '<strong>Lesion:</strong> TRACE prediction (patch-level)';
         this.panel.appendChild(lesionText);
-        
-        // Create a table to display the lesions and their probabilities
-        var expression_table = document.createElement('table');
-        var labelRow = document.createElement('tr');
-        var nameHeader = document.createElement('th');
-        nameHeader.textContent = 'Gene';
-        labelRow.appendChild(nameHeader);
-
-        var measuredExpressionHeader = document.createElement('th');
-        measuredExpressionHeader.textContent = 'Measured Expression';
-        labelRow.appendChild(measuredExpressionHeader);
-
-        var predictedExpressionHeader = document.createElement('th');
-        predictedExpressionHeader.textContent = 'Predicted Expression';
-        labelRow.appendChild(predictedExpressionHeader);
-
-        var toggleHeader = document.createElement('th');
-        toggleHeader.textContent = 'Heatmap';
-        labelRow.appendChild(toggleHeader);
-
-        expression_table.appendChild(labelRow);
-
-        // Show all the Measured and Predicted expressions 
-        Object.entries(slide_data.measured).forEach(([lesion, probability]) => {
-
-            if (lesion != 'Necrosis' && lesion != 'Cellular infiltration' && lesion != 'Fatty change' && lesion != 'Increased mitosis' && lesion != 'Hypertrophy' && lesion != 'Bile duct proliferation') {
-
-                var row = document.createElement('tr');
-
-                var nameCell = document.createElement('td');
-                nameCell.textContent = lesion;
-
-                var measuredCell = document.createElement('td');
-                measuredCell.textContent = probability;
-
-                var predictedCell = document.createElement('td');
-                predictedCell.textContent = slide_data.predicted[lesion];;
-
-                var toggleCell = document.createElement('td');
-
-                var toggle = document.createElement('label');
-                toggle.className = 'switch';
-
-                var input = document.createElement('input');
-                input.type = 'checkbox';
-                this.heatmap_toggles[lesion] = input;
-
-                var span = document.createElement('span');
-                span.className = 'slider round';
-
-                toggle.appendChild(input);
-                toggle.appendChild(span);
-                toggleCell.appendChild(toggle);
-                row.appendChild(nameCell);
-                row.appendChild(measuredCell);
-                row.appendChild(predictedCell);
-                row.appendChild(toggleCell);
-                expression_table.appendChild(row);
-            }
-        });
-        this.panel.appendChild(expression_table);
-
+             
         // Context text: measured expression
-        var measuredExpressionText = document.createElement('div');
-        measuredExpressionText.innerHTML = '<strong>Measured expression:</strong> Bulk log2 fold change gene expression';
-        this.panel.appendChild(measuredExpressionText);
+        var percentageText = document.createElement('div');
+        percentageText.innerHTML = '<strong>Percentage:</strong> Percentage of the slide with the lesion';
+        this.panel.appendChild(percentageText);
 
-        // Context text: predicted expression
-        var predictedExpressionText = document.createElement('div');
-        predictedExpressionText.innerHTML = '<strong>Predicted expression:</strong> Slide-level log2 fold change predicted by GEESE';
-        this.panel.appendChild(predictedExpressionText);
 
-        // Context text: Attention
-        var heatmapText = document.createElement('div');
-        heatmapText.innerHTML = '<strong>Heatmap:</strong> Pseudo-spatially resolved gene expression map predicted by GEESE (<strong>red:</strong> Over/Under expression, <strong>blue:</strong> Normal expression)';
-        this.panel.appendChild(heatmapText);
-        
         // Create div for bottom logos
         let logo_div_bottom = document.createElement('div');
         logo_div_bottom.classList.add('div-logo-bottom'); // add class
